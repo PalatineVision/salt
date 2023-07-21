@@ -29,7 +29,11 @@ class DisplayUtils:
     def __convert_ann_to_mask(self, ann, height, width):
         mask = np.zeros((height, width), dtype=np.uint8)
         poly = ann["segmentation"]
-        rles = coco_mask.frPyObjects(poly, height, width)
+        try:
+            rles = coco_mask.frPyObjects(poly, height, width)
+        except TypeError:
+            poly = [p for p in poly if len(p) > 4]
+            rles = coco_mask.frPyObjects(poly, height, width)
         rle = coco_mask.merge(rles)
         mask_instance = coco_mask.decode(rle)
         mask_instance = np.logical_not(mask_instance)
